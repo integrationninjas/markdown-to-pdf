@@ -25,7 +25,10 @@ async function mdToPdf(mdPath, pdfPath) {
     </html>
   `;
 
-  const browser = await puppeteer.launch();
+  const browser = await puppeteer.launch({
+    headless: true,
+    args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage']
+  });
   const page = await browser.newPage();
   await page.setContent(html, { waitUntil: 'networkidle0' });
   await page.pdf({ path: pdfPath, format: 'A4', printBackground: true });
@@ -39,4 +42,7 @@ if (!mdPath) {
 }
 mdToPdf(mdPath, pdfPath).then(() => {
   console.log(`✅ PDF generated: ${pdfPath}`);
+}).catch(error => {
+  console.error('❌ Error generating PDF:', error.message);
+  process.exit(1);
 }); 
